@@ -31,8 +31,7 @@ class DBProvider {
           "department TEXT,"
           "year TEXT,"
           "division TEXT,"
-          "roll_number TEXT,"
-          "college_number TEXT"
+          "roll_number TEXT"
           ")");
     });
   }

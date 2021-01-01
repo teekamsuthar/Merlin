@@ -29,10 +29,12 @@ class Utils {
   static TextEditingController emailController = TextEditingController();
 
   static String emailValidator(dynamic value) {
+    // remove spaces from email before validating
+    String trimmed = value.toString().trim();
     Pattern pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
     RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value)) {
+    if (!regex.hasMatch(trimmed)) {
       return 'Please provide a valid email.';
     } else {
       return null;

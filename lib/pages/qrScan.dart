@@ -7,12 +7,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:just_audio/just_audio.dart';
-import 'package:merlin/mainPage.dart';
+import 'package:merlin/pages/mainPage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
-import 'ad_manager.dart';
-import 'database.dart';
-import 'globals.dart' as globals;
+import '../services/ad_manager.dart';
+import '../database/database.dart';
+import '../models/globals.dart' as globals;
 
 class ScanQR extends StatefulWidget {
   @override
@@ -294,7 +294,7 @@ class _ScanQRState extends State<ScanQR> {
                 onPressed: () {
                   dispose();
                   Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => mainPage()));
+                      MaterialPageRoute(builder: (context) => MainPage()));
                 },
                 child: Text('Okay'),
                 textColor: Colors.white,

@@ -1,22 +1,19 @@
-import 'package:barcode_scan/gen/protos/protos.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:merlin/editProfile.dart';
-import 'package:merlin/enter_code.dart';
-import 'package:merlin/qrScan.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:merlin/database.dart';
+import 'package:merlin/pages/editProfile.dart';
+import 'package:merlin/pages/enter_code.dart';
+import 'package:merlin/pages/qrScan.dart';
+import 'package:merlin/database/database.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 
-import 'Utils.dart';
-import 'ad_manager.dart';
+import '../services/ad_manager.dart';
 
-class mainPage extends StatefulWidget {
+class MainPage extends StatefulWidget {
   @override
-  _mainPageState createState() => _mainPageState();
+  _MainPageState createState() => _MainPageState();
 }
 
-class _mainPageState extends State<mainPage> {
+class _MainPageState extends State<MainPage> {
   BannerAd _bannerAd;
 
   void _loadBannerAd() {

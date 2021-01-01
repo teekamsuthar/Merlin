@@ -1,45 +1,34 @@
-import 'dart:async';
-import 'dart:convert';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:merlin/database.dart';
-import 'package:merlin/mainPage.dart';
-import 'package:merlin/qrScan.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_picker/flutter_picker.dart';
 
-import 'Utils.dart';
+import '../Utils/Utils.dart';
+import '../database/database.dart';
+import 'mainPage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 const pickerData = ['First Year', 'Second Year', 'Third Year', 'Fourth Year'];
 
-class home_screen extends StatefulWidget {
+class EditProfile extends StatefulWidget {
   @override
-  _home_screenState createState() => _home_screenState();
+  _EditProfileState createState() => _EditProfileState();
 }
 
-class _home_screenState extends State<home_screen> {
+class _EditProfileState extends State<EditProfile> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
+
   TextEditingController your_Name = new TextEditingController();
   TextEditingController college_name = new TextEditingController();
   TextEditingController email = new TextEditingController();
   TextEditingController mobile_no = new TextEditingController();
   TextEditingController department = new TextEditingController();
-  //TextEditingController year_picker = new TextEditingController();
-  String year_picker = 'Select Year';
+
+  String year_picker = "Select Year";
   TextEditingController division = new TextEditingController();
   TextEditingController roll_no = new TextEditingController();
-  TextEditingController colleg_no = new TextEditingController();
-
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _formKey = GlobalKey<FormState>();
-  //DBProvider database;
-
-  _saveOneTimeUse() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('oneTimeUser', true);
-  }
+  bool updateOnce = false;
 
   showPicker(BuildContext context) {
     Picker picker = Picker(
@@ -49,6 +38,9 @@ class _home_screenState extends State<home_screen> {
         textStyle: const TextStyle(color: Colors.blue),
         selectedTextStyle: TextStyle(color: Colors.red),
         columnPadding: const EdgeInsets.all(8.0),
+        footer: Padding(
+          padding: EdgeInsets.fromLTRB(0,0,0,70.0),
+        ),
         onConfirm: (Picker picker, List value) {
           print(value.toString());
           print(picker.getSelectedValues());
@@ -62,33 +54,45 @@ class _home_screenState extends State<home_screen> {
   TextFormField getTextField(String text, TextEditingController controller,
       FormFieldValidator validator) {
     return TextFormField(
-        decoration: InputDecoration(
-          labelText: text,
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.blue[900]),
-          ),
+      decoration: InputDecoration(
+        labelText: text,
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey),
         ),
-        controller: controller,
-        cursorColor: Colors.blue[900],
-        // selectionWidthStyle: BoxWidthStyle.tight,
-        validator: validator);
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue[900]),
+        ),
+      ),
+      controller: controller,
+      cursorColor: Colors.blue[900],
+      validator: validator,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    //WidgetsFlutterBinding.ensureInitialized();
-    // if (!year_picker.text.contains('First Year') ||
-    //     !year_picker.text.contains('Second Year') ||
-    //     !year_picker.text.contains('Third Year') ||
-    //     !year_picker.text.contains('Fourth Year')) {
-    //   year_picker.text = '';
-    // }
+    if (updateOnce == false) {
+      DBProvider.db.getData(1).then((value) {
+        setState(() {
+          your_Name.text = value['student_name'];
+          college_name.text = value['college_name'];
+          email.text = value['email'];
+          mobile_no.text = value['mobile'];
+          department.text = value['department'];
+          year_picker = value['year'];
+          division.text = value['division'];
+          roll_no.text = value['roll_number'];
+        });
+      });
+      updateOnce = true;
+    }
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
           title: Image.asset(
             'assets/merlin.png',
             fit: BoxFit.contain,
@@ -137,34 +141,35 @@ class _home_screenState extends State<home_screen> {
                     getTextField('Division', division, Utils.generalValidation),
                     getTextField(
                         'Roll Number', roll_no, Utils.rollNumberValidation),
-                    getTextField('College Unique Number (Optional)', colleg_no,
-                        Utils.collegeNumberValidation),
                     Padding(
-                      padding: EdgeInsets.only(top: 10),
+                      padding: EdgeInsets.only(top: 10, bottom: 50),
                       child: FlatButton(
                           onPressed: () {
                             if (_formKey.currentState.validate()) {
                               setState(() {
-                                print('validating input......');
+                                Map<String, dynamic> modifyData = {
+                                  'student_name': your_Name.text,
+                                  'college_name': college_name.text,
+                                  'email': email.text.trim(),
+                                  'mobile': mobile_no.text,
+                                  'department': department.text,
+                                  'year': year_picker,
+                                  'division': division.text,
+                                  'roll_number': roll_no.text,
+                                };
+                                DBProvider.db
+                                    .updateData(modifyData)
+                                    .then((value) {
+                                  Fluttertoast.showToast(
+                                      msg: "Details Updated",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.grey,
+                                      textColor: Colors.black,
+                                      fontSize: 16.0);
+                                });
                               });
-                              Map<String, dynamic> addData = {
-                                'student_name': your_Name.text,
-                                'college_name': college_name.text,
-                                'email': email.text,
-                                'mobile': mobile_no.text,
-                                'department': department.text,
-                                'year': year_picker,
-                                'division': division.text,
-                                'roll_number': roll_no.text,
-                                'college_number': colleg_no.text
-                              };
-                              DBProvider.db.insertData(addData);
-                              Navigator.pop(context);
-                              _saveOneTimeUse();
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => mainPage()));
                             }
                           },
                           child: Text('Save Details'),

@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
-import 'ad_manager.dart';
-import 'database.dart';
-import 'globals.dart' as globals;
+import '../services/ad_manager.dart';
+import '../database/database.dart';
+import '../models/globals.dart' as globals;
 import 'mainPage.dart';
 
 class EnterAttendanceCode extends StatefulWidget {
@@ -303,7 +303,7 @@ class _EnterAttendanceCodeState extends State<EnterAttendanceCode> {
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => mainPage()));
+                                    builder: (context) => MainPage()));
                           },
                           child: Text('  OK  '),
                           textColor: Colors.white,
